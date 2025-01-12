@@ -1,6 +1,8 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
+const scoreEl = document.querySelector('#scoreEl')
+
 canvas.width = innerWidth
 canvas.height = innerHeight
 
@@ -44,6 +46,26 @@ class Player{
 }
 
 
+
+
+class Pellet{
+  constructor({position}){
+      this.position= position
+      this.radius= 3
+  }
+
+  draw(){
+      c.beginPath()
+      c.arc(this.position.x,this.position.y,this.radius, 0,Math.PI*2)
+
+      c.fillStyle = 'white'
+      c.fill()
+      c.closePath
+  }
+}
+
+const pellets= []
+
 const boundaries = []
 const player = new Player({
     position: {
@@ -69,6 +91,7 @@ const keys = {
 }
 
 let lastKey = ''
+let score = 0
 
 
 //MAP 
@@ -277,16 +300,16 @@ map.forEach((row, i) => {
             })
           )
           break
-        // case '.':
-        //   pellets.push(
-        //     new Pellet({
-        //       position: {
-        //         x: j * Boundary.width + Boundary.width / 2,
-        //         y: i * Boundary.height + Boundary.height / 2
-        //       }
-        //     })
-        //   )
-        //   break
+        case '.':
+            pellets.push(
+            new Pellet({
+              position: {
+               x: j * Boundary.width + Boundary.width / 2,
+               y: i * Boundary.height + Boundary.height / 2
+               }
+             })
+           )
+          break
       }
     })
   })
@@ -381,6 +404,20 @@ function animate(){
                 } 
     }
 
+    // touch pellets here
+    for(let i = pellets.length - 1; 0 < i;i--){
+      const pellet = pellets[i]
+      pellet.draw() 
+
+      if(Math.hypot(pellet.position.x - player.position.x, pellet.position.y - player.position.y)
+        < pellet.radius + player.radius){
+        pellets.splice(i,1)
+        score += 10
+        scoreEl.innerHTML = score
+      }
+
+    }
+
     boundaries.forEach((boundary)=>{
         boundary.draw() 
 
@@ -391,9 +428,8 @@ function animate(){
             player.velocity.y = 0
             }
     })
-    player.update()
 
-
+  player.update()
     
 }
 
