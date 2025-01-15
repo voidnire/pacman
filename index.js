@@ -22,26 +22,42 @@ class Boundary {
   }
 }
 
+
 class Player {
   constructor({ position, velocity }) {
     this.position = position
     this.velocity = velocity
     this.radius = 15
+    this.radians = 0.75
+    this.openRate = 0.12
+    this.rotation = 0
   }
 
   draw() {
-    c.beginPath()
-    c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+    c.save()
+    c.translate(this.position.x, this.position.y)
+    c.rotate(this.rotation)
+    c.translate(-this.position.x, -this.position.y)
 
+    c.beginPath()
+    c.arc(this.position.x, this.position.y, this.radius, this.radians,
+      Math.PI * 2 - this.radians)
+    c.lineTo(this.position.x, this.position.y)
     c.fillStyle = 'yellow'
     c.fill()
-    c.closePath
+    c.closePath()
+    c.restore()
   }
 
   update() {
     this.draw()
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
+
+    if (this.radians < 0 || this.radians > .75)
+      this.openRate = -this.openRate
+
+    this.radians += this.openRate
   }
 }
 
@@ -54,12 +70,13 @@ class Ghost {
     this.color = color
     this.prevCollisions = []
     this.speed = 2
+    this.scared = false
   }
 
   draw() {
     c.beginPath()
     c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-    c.fillStyle = this.color
+    c.fillStyle = this.scared ? 'blue' : this.color
     c.fill()
     c.closePath
   }
@@ -70,7 +87,6 @@ class Ghost {
     this.position.y += this.velocity.y
   }
 }
-
 
 
 class Pellet {
@@ -89,8 +105,24 @@ class Pellet {
   }
 }
 
+class PowerUp {
+  constructor({ position }) {
+    this.position = position
+    this.radius = 8
+  }
+
+  draw() {
+    c.beginPath()
+    c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+    c.fillStyle = 'white'
+    c.fill()
+    c.closePath
+  }
+}
+
 const pellets = []
 const boundaries = []
+const powerUps = []
 
 const ghosts = [
   new Ghost({
@@ -102,8 +134,21 @@ const ghosts = [
       x: Ghost.speed,
       y: 0
     }
+  }),
+  new Ghost({
+    position: {
+      x: Boundary.width * 6 + Boundary.width / 2,
+      y: Boundary.height * 3 + Boundary.height / 2
+    },
+    velocity: {
+      x: Ghost.speed,
+      y: 0
+    },
+    color: 'pink'
   })
 ]
+
+
 
 
 const player = new Player({
@@ -349,11 +394,22 @@ map.forEach((row, i) => {
           })
         )
         break
+      case 'p':
+        powerUps.push(
+          new PowerUp({
+            position: {
+              x: j * Boundary.width + Boundary.width / 2,
+              y: i * Boundary.height + Boundary.height / 2
+            }
+          })
+        )
+        break
     }
   })
 })
 
 //END MAP 
+
 //ANIMATION
 
 function circleCollidesWithRectangle({ circle, rectangle }) {
@@ -367,10 +423,12 @@ function circleCollidesWithRectangle({ circle, rectangle }) {
 }
 
 let animationId
+
 function animate() {
   animationId = requestAnimationFrame(animate)
   c.clearRect(0, 0, canvas.width, canvas.height)
 
+  // wasd moves
   if (keys.w.pressed && lastKey === 'w') {//POR UMA FUNCAO
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
@@ -390,8 +448,7 @@ function animate() {
         player.velocity.y = -5
       }
     }
-  }
-  else if (keys.a.pressed && lastKey === 'a') {
+  } else if (keys.a.pressed && lastKey === 'a') {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
       if (
@@ -410,8 +467,7 @@ function animate() {
         player.velocity.x = -5
       }
     }
-  }
-  else if (keys.s.pressed && lastKey === 's') {
+  } else if (keys.s.pressed && lastKey === 's') {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
       if (
@@ -450,9 +506,59 @@ function animate() {
       }
     }
   }
+  // end wasd moves
+
+  // detect collision ghost - player
+  for (let i = ghosts.length - 1; 0 <= i; i--) {
+    const ghost = ghosts[i]
+    if (
+      Math.hypot(
+        ghost.position.x - player.position.x,
+        ghost.position.y - player.position.y
+      ) <
+      ghost.radius + player.radius) {
+
+      if (ghost.scared) {
+        ghosts.splice(i, 1)
+      } else {
+        cancelAnimationFrame(animationId)
+        console.log("U LOSE")
+      }
+    }
+  }
+  // end detect collision ghost - player
+
+  // win condition goes here
+  if (pellets.length === 0) {
+    console.log('you win!')
+    cancelAnimationFrame(animationId)
+  }
+  // end win condition
+
+  // power ups go
+  for (let i = powerUps.length - 1; 0 <= i; i--) {
+    const powerUp = powerUps[i]
+    powerUp.draw()
+
+    // player collides with power up
+    if (Math.hypot(powerUp.position.x - player.position.x,
+      powerUp.position.y - player.position.y)
+      < powerUp.radius + player.radius) {
+      powerUps.splice(i, 1)
+      // make ghosts scared 
+      ghosts.forEach(ghost => {
+        ghost.scared = true
+
+        setTimeout(() => {
+          ghost.scared = false
+        }, 5000)
+      })
+    }
+  }
+  // end power ups go
 
   // touch pellets here
-  for (let i = pellets.length - 1; 0 < i; i--) {
+  for (let i = pellets.length - 1; 0 <= i; i--) {
     const pellet = pellets[i]
     pellet.draw()
 
@@ -462,9 +568,10 @@ function animate() {
       score += 10
       scoreEl.innerHTML = score
     }
-
   }
+  // end touch pellets here
 
+  // boundaries collision detection
   boundaries.forEach((boundary) => {
     boundary.draw()
 
@@ -475,23 +582,15 @@ function animate() {
       player.velocity.y = 0
     }
   })
+  // boundaries collision detection
 
-  player.update()
+  // player.update()
 
+  // ghost collisions
   ghosts.forEach((ghost) => {
     ghost.update()
-
-    if (
-      Math.hypot(
-        ghost.position.x - player.position.x,
-        ghost.position.y - player.position.y
-      ) <
-      ghost.radius + player.radius) {
-      cancelAnimationFrame(animationId)
-      console.log("U LOSE")
-    }
-
     const collisions = []
+
     boundaries.forEach(boundary => {
       if (
         !collisions.includes('right') &&
@@ -519,7 +618,6 @@ function animate() {
       ) {
         collisions.push('left')
       }
-
       if (!collisions.includes('up') &&
         circleCollidesWithRectangle({
           circle: {
@@ -532,7 +630,6 @@ function animate() {
       ) {
         collisions.push('up')
       }
-
       if (!collisions.includes('down') &&
         circleCollidesWithRectangle({
           circle: {
@@ -546,30 +643,24 @@ function animate() {
         collisions.push('down')
       }
 
-    })
+    })//end boundary for each
 
     if (collisions.length > ghost.prevCollisions.length) {
       ghost.prevCollisions = collisions
     }
 
+    // previous ghost collisions
     if (JSON.stringify(collisions) !== JSON.stringify(ghost.prevCollisions)) {
       if (ghost.velocity.x > 0) ghost.prevCollisions.push('right')
       else if (ghost.velocity.x < 0) ghost.prevCollisions.push('left')
       else if (ghost.velocity.y < 0) ghost.prevCollisions.push('up')
       else if (ghost.velocity.y > 0) ghost.prevCollisions.push('down')
 
-      console.log(collisions)
-      console.log(ghost.prevCollisions)
-
       const pathways = ghost.prevCollisions.filter((collision) => {
         return !collisions.includes(collision)
       })
 
-      console.log({ pathways })
-
       const direction = pathways[Math.floor(Math.random() * pathways.length)]
-      console.log({ direction })
-
       switch (direction) {
         case 'down':
           ghost.velocity.y = Ghost.speed
@@ -589,24 +680,44 @@ function animate() {
           break
 
       }
-
       ghost.prevCollisions = []
     }
-
+    // end previous ghost collisions
   })
+  // end ghost collisions
+
+  // pacman rotation
+  if (player.velocity.x > 0) player.rotation = 0
+  else if (player.velocity.x < 0) player.rotation = Math.PI
+  else if (player.velocity.y > 0) player.rotation = Math.PI / 2
+  else if (player.velocity.y < 0) player.rotation = Math.PI * 1.5
+
+  // end pacman rotation
+  player.update()
+}
+// end animate
+
+animate()
+
+function bostamerda() {
+  if (player.velocity.x > 0) {
+    player.rotation = 0
+  } else if (player.velocity.x < 0) {
+    player.rotation = Math.PI
+  }
+  else if (player.velocity.y > 0) player.rotation = Math.PI / 2
+  else if (player.velocity.y < 0) player.rotation = Math.PI * 1.5
 
 }
 
-animate()
 //END ANIMATION
-
+//aa
 
 addEventListener('keydown', ({ key }) => {
   switch (key) {
     case 'w':
       keys.w.pressed = true
       lastKey = 'w'
-      console.log('cuzinh')
       break
     case 'a':
       keys.a.pressed = true
@@ -621,8 +732,8 @@ addEventListener('keydown', ({ key }) => {
       lastKey = 'd'
       break
   }
-  console.log(keys.d.pressed)
-  console.log(keys.s.pressed)
+
+
 })
 addEventListener('keyup', ({ key }) => {
   switch (key) {
@@ -639,6 +750,5 @@ addEventListener('keyup', ({ key }) => {
       keys.d.pressed = false
       break
   }
-  console.log(keys.d.pressed)
-  console.log(keys.s.pressed)
+
 })
