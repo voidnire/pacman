@@ -1,5 +1,4 @@
 # 🟡 Pac-Man - Classic Game Developed with HTML and JavaScript
-<br/>
 <h2>🎯 Description</h2>
 This project is a simple and fun version of Pac-Man, where you control the iconic yellow character who must eat all the dots and avoid the ghosts.
 
@@ -38,3 +37,27 @@ Extra Tip: There are special dots that allow Pac-Man to eat the ghosts for a sho
 Feel free to contribute to this project! Suggestions, improvements, and feedback are always welcome.
 </br>
 I hope you enjoy playing as much as I enjoyed creating it!
+
+<a href="#" title="LinkedIn" class="btn btn-linkedin btn-lg"><i class="fa fa-linkedin fa-fw"></i> LinkedIn</a>
+<style>
+html {
+  margin: 40px auto;
+  text-align: center;
+}
+	.btn-linkedin {
+	  background: #0E76A8;
+	  border-radius: 0;
+	  color: #fff;
+	  border-width: 1px;
+	  border-style: solid;
+	  border-color: #084461;
+	}
+	.btn-linkedin:link, .btn-linkedin:visited {
+	  color: #fff;
+	}
+	.btn-linkedin:active, .btn-linkedin:hover {
+	  background: #084461;
+	  color: #fff;
+	}
+  </style>
+
