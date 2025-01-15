@@ -1,13 +1,13 @@
 # 🟡 Pac-Man - Classic Game Developed with HTML and JavaScript
 <br/>
-<h2>🎯 Description</h2>h2>
+<h2>🎯 Description</h2>
 This project is a simple and fun version of Pac-Man, where you control the iconic yellow character who must eat all the dots and avoid the ghosts.
 
 The game was developed as a practical exercise to improve my JavaScript skills and DOM manipulation.
 </br>
 
 <h2>🔗 Website</h2>
-<a href="https://voidnire.github.io/pacman/">[link text]https://voidnire.github.io/pacman/</a>
+<a href="https://voidnire.github.io/pacman/">https://voidnire.github.io/pacman/</a>
 
 <h2>🕹️ How to Play</h2>
 Movement: Use the **W A S D** keys on your keyboard to move Pac-Man through the maze. 
