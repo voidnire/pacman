@@ -18,8 +18,8 @@ Extra Tip: There are special dots that allow Pac-Man to eat the ghosts for a sho
  
 <h2>🛠️ Tecnologias Utilizadas</h2>
 <ul>
-  <li>- <b>HTML</b>: For the game's structure.</li>
-  <li> - <b>JavaScript</b>: For the game's logic, movement, and interaction with the ghosts.</li>
+  <li><b>HTML</b>: For the game's structure.</li>
+  <li><b>JavaScript</b>: For the game's logic, movement, and interaction with the ghosts.</li>
 </ul>
 
 </br>
