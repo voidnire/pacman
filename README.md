@@ -6,6 +6,9 @@ This project is a simple and fun version of Pac-Man, where you control the iconi
 The game was developed as a practical exercise to improve my JavaScript skills and DOM manipulation.
 </br>
 
+<h2>🔗 Website</h2>
+<a href="https://voidnire.github.io/pacman/">[link text]https://voidnire.github.io/pacman/</a>
+
 <h2>🕹️ How to Play</h2>
 Movement: Use the **W A S D** keys on your keyboard to move Pac-Man through the maze. 
 Objective: 
@@ -16,12 +19,12 @@ Extra Tip: There are special dots that allow Pac-Man to eat the ghosts for a sho
  
 <h2>🛠️ Tecnologias Utilizadas</h2>
 <ul>
-  <li>- **HTML**: For the game's structure.</li>
-  <li> - **JavaScript**: For the game's logic, movement, and interaction with the ghosts.</li>
+  <li>- <b>HTML</b>: For the game's structure.</li>
+  <li> - <b>JavaScript</b>: For the game's logic, movement, and interaction with the ghosts.</li>
 </ul>
+
 </br>
-<h2>🔗 Website</h2>
-https://voidnire.github.io/pacman/
+
 </br>
 <h2>🔮 Possible Future Improvements</h2>
 <ul>
